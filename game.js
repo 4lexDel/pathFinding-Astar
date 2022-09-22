@@ -13,6 +13,8 @@ var MOUSE_Y = 0;
 var WIDTH;
 var HEIGHT;
 
+var DEFAULT_SIZE = 20;
+
 resizeCanvas();
 
 function resizeCanvas() {
@@ -43,9 +45,7 @@ function generateMaps(size) {
 
 /**--------------------------------------------------------------------------------------------------- */
 
-let size = 20;
-
-let allMap = generateMaps(size);
+let allMap = generateMaps(DEFAULT_SIZE);
 
 var map = allMap.editMap;
 var decorationMap = allMap.decorationMap;
