@@ -60,7 +60,7 @@ var finish = {
     y: map.nbSquareY - 2
 }
 
-var brushId = true; //ID AJOUTE A LA MAP
+var brush = TileMap.OBSTACLE;
 
 decorationMap.writeSpecialPoint(start.x, start.y, TileMap.START);
 decorationMap.writeSpecialPoint(finish.x, finish.y, TileMap.FINISH);
@@ -94,9 +94,6 @@ function test() {
 
 /**-------------------------------POP UP----------------------------------------------------------- */
 
-let modal = document.getElementById('modalMap');
-//modal.style.display = 'none'
-
 
 function generateNewMaps() {
     resizeCanvas();
@@ -117,7 +114,26 @@ function generateNewMaps() {
     decorationMap.writeSpecialPoint(finish.x, finish.y, TileMap.FINISH);
 
     test();
-    //modal.style.display = 'none';
+}
+
+function changeBrush() {
+    let select = document.getElementById("typeBrush");
+    let value = select.options[select.selectedIndex].value;
+    console.log(value);
+
+    switch (value) {
+        case "obstacle":
+            brush = TileMap.OBSTACLE;
+            break;
+
+        case "ground":
+            brush = TileMap.NORMAL;
+            break;
+
+        case "water":
+            brush = TileMap.WATER;
+            break;
+    }
 }
 
 
@@ -127,6 +143,8 @@ document.getElementById("resetMap").addEventListener("click", function() {
     decorationMap.resetGrid();
     test();
 });
+
+document.getElementById("getBrush").addEventListener("click", changeBrush);
 
 
 /**------------------------------------------------------------------- */
@@ -162,10 +180,7 @@ var startDrag = false;
 function mouseInteraction(e) {
     var mouse = getMousePos(canvas, e);
 
-    let val = TileMap.OBSTACLE;
-    if (!brushId) val = TileMap.WATER;
-
-    if (e.which == 1) map.updateGrid(mouse, val);
+    if (e.which == 1) map.updateGrid(mouse, brush);
     else map.updateGrid(mouse, TileMap.NORMAL);
     test();
 }
@@ -174,10 +189,7 @@ function touchInteraction(e) {
     var touch = getTouchPos(canvas, e);
     console.log(touch);
 
-    let val = TileMap.OBSTACLE;
-    if (!brushId) val = TileMap.WATER;
-
-    map.updateGrid(touch, val);
+    map.updateGrid(touch, brush);
 
     test();
 }
@@ -273,11 +285,6 @@ document.addEventListener("keyup", function(e) { //KEYBOARD EVENT
             }
 
             test();
-
-            break;
-
-        case "c":
-            brushId = !brushId;
 
             break;
 
