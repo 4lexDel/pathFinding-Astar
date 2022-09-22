@@ -1,21 +1,23 @@
 import { PathFinding } from "./lib/PathFinding.js";
 import { TileMap } from "./TileMap.js";
+import { getMousePos, getTouchPos } from "./utils.js";
 import { getHeight, getWidth } from "/utils.js";
+
+/**-------------------------------INIT GLOBAL VAR----------------------------------------------------------- */
 
 var canvas = document.getElementById('gameCanvas');
 
 var MOUSE_X = 0;
 var MOUSE_Y = 0;
 
-var WIDTH = 9 * getWidth() / 10;
-var HEIGHT = 9 * getHeight() / 10;
+var WIDTH;
+var HEIGHT;
 
-canvas.width = WIDTH;
-canvas.height = HEIGHT;
+resizeCanvas();
 
-function resizeWindow() {
-    WIDTH = 9 * getWidth() / 10;
-    HEIGHT = 9 * getHeight() / 10;
+function resizeCanvas() {
+    WIDTH = 10 * getWidth() / 10;
+    HEIGHT = 10 * getHeight() / 10;
 
     canvas.width = WIDTH;
     canvas.height = HEIGHT;
@@ -24,30 +26,44 @@ function resizeWindow() {
 console.log("WIDTH : " + canvas.clientWidth + " - HEIGHT : " + canvas.clientHeight);
 
 
-/**------------------------------------------------------------------------------------------ */
+/**-------------------------------INIT CTX----------------------------------------------------------- */
 
 var ctx = canvas.getContext("2d");
 
-/**------------------------------------------------------------------------------------------ */
 
-var map = new TileMap(50, WIDTH, HEIGHT);
-var mapDecoration = new TileMap(50, WIDTH, HEIGHT, 1000);
+
+/**----------------------------------MAP INIT--------------------------------------------------------- */
+
+function generateMaps(size) {
+    return {
+        editMap: new TileMap(size, WIDTH, HEIGHT),
+        decorationMap: new TileMap(size, WIDTH, HEIGHT, TileMap.VOID)
+    }
+}
+
+/**--------------------------------------------------------------------------------------------------- */
+
+let size = 20;
+
+let allMap = generateMaps(size);
+
+var map = allMap.editMap;
+var decorationMap = allMap.decorationMap;
 
 var start = {
     x: 0,
     y: 0
 }
 
-
 var finish = {
     x: map.nbSquareX - 1,
-    y: map.nbSquareY - 1
+    y: map.nbSquareY - 2
 }
 
 var brushId = true; //ID AJOUTE A LA MAP
 
-mapDecoration.writeSpecialPoint(start.x, start.y, 10);
-mapDecoration.writeSpecialPoint(finish.x, finish.y, 20);
+decorationMap.writeSpecialPoint(start.x, start.y, TileMap.START);
+decorationMap.writeSpecialPoint(finish.x, finish.y, TileMap.FINISH);
 
 test();
 draw();
@@ -56,38 +72,77 @@ function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     map.display(ctx);
-    mapDecoration.display(ctx);
+    decorationMap.display(ctx);
 
-    window.requestAnimationFrame(draw);
+    //window.requestAnimationFrame(draw);
 }
 
 function test() {
     let pathfinding = new PathFinding(start, finish, map.grid);
+    decorationMap.resetGrid();
 
     let result = pathfinding.process();
     if (result != null) {
         result.pathList.shift();
         //console.log(path);
-        mapDecoration.writelist(result.openList, -3);
-        mapDecoration.writelist(result.closeList, -4);
-        mapDecoration.writelist(result.pathList, -2);
+        decorationMap.writelist(result.closeList, TileMap.CLOSE_LIST);
+        decorationMap.writelist(result.openList, TileMap.OPEN_LIST);
+        decorationMap.writelist(result.pathList, TileMap.PATH_LIST);
     }
+    draw();
 }
+
+/**-------------------------------POP UP----------------------------------------------------------- */
+
+let modal = document.getElementById('modalMap');
+//modal.style.display = 'none'
+
+
+function generateNewMaps() {
+    resizeCanvas();
+
+    let size = document.getElementById("numberCell").value;
+    console.log(size);
+
+    allMap = generateMaps(size);
+
+    map = allMap.editMap;
+    decorationMap = allMap.decorationMap;
+
+    finish = {
+        x: map.nbSquareX - 1,
+        y: map.nbSquareY - 2
+    }
+
+    decorationMap.writeSpecialPoint(finish.x, finish.y, TileMap.FINISH);
+
+    test();
+    //modal.style.display = 'none';
+}
+
+
+document.getElementById("generateMap").addEventListener("click", generateNewMaps);
+document.getElementById("resetMap").addEventListener("click", function() {
+    map.resetGrid();
+    decorationMap.resetGrid();
+    test();
+});
+
 
 /**------------------------------------------------------------------- */
 
-canvas.onclick = (e) => { //MOUSE CLICK
-    var mouse = getMousePos(canvas, e);
+// canvas.onclick = (e) => { //MOUSE CLICK
+//     var mouse = getMousePos(canvas, e);
 
-    let val = -1;
-    if (!brushId) val = 1;
+//     let val = -1;
+//     if (!brushId) val = 1;
 
-    if (e.which == 1) map.updateGrid(mouse, val);
-    else map.updateGrid(mouse, 0);
-    test();
-}
+//     if (e.which == 1) map.updateGrid(mouse, val);
+//     else map.updateGrid(mouse, 0);
+//     test();
+// }
 
-canvas.addEventListener("mousemove", (e) => {
+canvas.addEventListener("mousemove", (e) => { //UPDATE GLOBAL MOUSE VARIABLE
     let topPosY = canvas.offsetTop;
     let leftPosX = canvas.offsetLeft;
 
@@ -101,47 +156,81 @@ canvas.addEventListener("mousemove", (e) => {
     MOUSE_Y = mouse.y;
 })
 
-function getMousePos(canvas, evt) {
-    var rect = canvas.getBoundingClientRect();
-    return {
-        x: evt.clientX - rect.left,
-        y: evt.clientY - rect.top
-    };
-}
 
 var startDrag = false;
 
-canvas.onmousedown = (e) => {
+function mouseInteraction(e) {
     var mouse = getMousePos(canvas, e);
+
+    let val = TileMap.OBSTACLE;
+    if (!brushId) val = TileMap.WATER;
+
+    if (e.which == 1) map.updateGrid(mouse, val);
+    else map.updateGrid(mouse, TileMap.NORMAL);
+    test();
+}
+
+function touchInteraction(e) {
+    var touch = getTouchPos(canvas, e);
+    console.log(touch);
+
+    let val = TileMap.OBSTACLE;
+    if (!brushId) val = TileMap.WATER;
+
+    map.updateGrid(touch, val);
+
+    test();
+}
+
+/*-------------------------------------------------*/
+
+canvas.onmousedown = (e) => {
     startDrag = true;
 
-    // console.log("A");
-    // console.log(e.which);
+    mouseInteraction(e);
 }
 
 canvas.onmousemove = (e) => {
     if (startDrag) {
-        var mouse = getMousePos(canvas, e);
 
-        let val = -1;
-        if (!brushId) val = 1;
-
-        if (e.which == 1) map.updateGrid(mouse, val);
-        else map.updateGrid(mouse, 0);
-        test();
+        mouseInteraction(e);
     }
 }
 
 canvas.onmouseup = (e) => {
     if (startDrag) {
         startDrag = false;
-        var mouse = getMousePos(canvas, EventSource);
 
-        //console.log("x : " + mouse.x + " y : " + mouse.y);
-        // console.log("C");
-        // console.log(e.which);
+        mouseInteraction(e);
     }
 }
+
+/*-------------------------------------------------*/
+
+
+canvas.addEventListener('touchstart', function(e) {
+    startDrag = true;
+
+    touchInteraction(e);
+}, false);
+
+canvas.addEventListener('touchmove', function(e) {
+    if (startDrag) {
+        touchInteraction(e);
+    }
+
+}, false);
+
+canvas.addEventListener('touchend', function(e) {
+    startDrag = false;
+
+    touchInteraction(e);
+}, false);
+
+
+
+/*-------------------------------------------------*/
+
 
 document.addEventListener("keyup", function(e) { //KEYBOARD EVENT
     // console.log(e.key);
@@ -153,16 +242,15 @@ document.addEventListener("keyup", function(e) { //KEYBOARD EVENT
 
         case "r":
             map.resetGrid();
-            mapDecoration.resetGridById(-2);
-            mapDecoration.resetGridById(-3);
-            mapDecoration.resetGridById(-4);
+            decorationMap.resetGrid();
+            test();
             break;
 
         case "a":
             let xa = parseInt(MOUSE_X / map.dx);
             let ya = parseInt(MOUSE_Y / map.dy);
 
-            mapDecoration.writeSpecialPoint(xa, ya, 10);
+            decorationMap.writeSpecialPoint(xa, ya, TileMap.START);
 
             start = {
                 x: xa,
@@ -177,7 +265,7 @@ document.addEventListener("keyup", function(e) { //KEYBOARD EVENT
             let xb = parseInt(MOUSE_X / map.dx);
             let yb = parseInt(MOUSE_Y / map.dy);
 
-            mapDecoration.writeSpecialPoint(xb, yb, 20);
+            decorationMap.writeSpecialPoint(xb, yb, TileMap.FINISH);
 
             finish = {
                 x: xb,
@@ -207,17 +295,5 @@ document.addEventListener("keydown", function(e) { //KEYBOARD EVENT
 })
 
 window.onresize = (e) => {
-    resizeWindow();
+    resizeCanvas();
 };
-
-/**
- * 
-    // ctx.fillStyle = "red";
-    // ctx.fillRect(50 + x, 50, 50, 50);
-
-        // ctx.fillStyle = "black";
-        // ctx.lineWidth = 5;
-        // ctx.strokeRect(50 + x, 50, 50, 50);
-
-    // x += 1;
- */

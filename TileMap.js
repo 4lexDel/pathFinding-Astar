@@ -1,4 +1,13 @@
 class TileMap {
+    static CLOSE_LIST = -4;
+    static OPEN_LIST = -3;
+    static PATH_LIST = -2;
+    static OBSTACLE = -1;
+    static NORMAL = 0;
+    static WATER = 1;
+    static START = 10;
+    static FINISH = 20;
+    static VOID = 100;
 
     constructor(nbSquareX, canvasWidth, canvasHeight, defaultFill = 0) {
         this.nbSquareX = parseInt(nbSquareX);
@@ -11,7 +20,7 @@ class TileMap {
         this.dx = canvasWidth / nbSquareX;
         this.dy = this.dx;
 
-        this.nbSquareY = parseInt(canvasHeight / this.dy);
+        this.nbSquareY = parseInt(canvasHeight / this.dx) + 1;
 
         this.grid = new Array(this.nbSquareX);
         for (var x = 0; x < this.grid.length; x++) {
@@ -24,58 +33,58 @@ class TileMap {
         for (let x = 0; x < this.grid.length; x++) {
             for (let y = 0; y < this.grid[x].length; y++) {
                 switch (this.grid[x][y]) {
-                    case 0:
+                    case TileMap.NORMAL:
                         ctx.fillStyle = "white";
                         ctx.globalAlpha = 1;
                         ctx.fillRect(x * this.dx, y * this.dy, this.dx, this.dy);
                         break;
 
-                    case 1:
+                    case TileMap.WATER:
                         ctx.fillStyle = "cyan";
                         ctx.globalAlpha = 1;
                         ctx.fillRect(x * this.dx, y * this.dy, this.dx, this.dy);
                         break;
 
-                    case -2:
+                    case TileMap.PATH_LIST:
                         ctx.fillStyle = "purple"; //"violet";      //PATH
                         ctx.globalAlpha = 0.6;
                         ctx.fillRect(x * this.dx, y * this.dy, this.dx, this.dy);
                         break;
 
-                    case -3:
+                    case TileMap.OPEN_LIST:
                         ctx.fillStyle = "green"; //"orange";      //OpenList
                         ctx.globalAlpha = 0.1;
                         ctx.fillRect(x * this.dx, y * this.dy, this.dx, this.dy);
                         break;
 
-                    case -4:
+                    case TileMap.CLOSE_LIST:
                         ctx.fillStyle = "red"; //"orange";      //closeList
                         ctx.globalAlpha = 0.1;
                         ctx.fillRect(x * this.dx, y * this.dy, this.dx, this.dy);
                         break;
 
-                    case 10:
+                    case TileMap.START:
                         ctx.fillStyle = "blue";
                         ctx.globalAlpha = 1;
                         ctx.fillRect(x * this.dx, y * this.dy, this.dx, this.dy);
                         break;
 
-                    case 20:
+                    case TileMap.FINISH:
                         ctx.fillStyle = "red";
                         ctx.globalAlpha = 1;
                         ctx.fillRect(x * this.dx, y * this.dy, this.dx, this.dy);
                         break;
 
-                    case -1:
+                    case TileMap.OBSTACLE:
                         ctx.fillStyle = "black";
                         ctx.globalAlpha = 1;
                         ctx.fillRect(x * this.dx, y * this.dy, this.dx, this.dy);
                         break;
                 }
 
-                // ctx.fillStyle = "white";
-                // ctx.lineWidth = 0;
-                // ctx.strokeRect(x * this.dx, y * this.dy, this.dx, this.dy);
+                ctx.strokeStyle = "rgb(200,200,200)";
+                ctx.lineWidth = 0.1;
+                ctx.strokeRect(x * this.dx, y * this.dy, this.dx, this.dy);
             }
         }
     }
@@ -84,14 +93,15 @@ class TileMap {
         this.resetGridById(val);
         list.forEach(node => {
             //console.log("X : " + node.x + " | Y : " + node.y);
-            this.grid[node.x][node.y] = val;
+            if (this.grid[node.x][node.y] != TileMap.START && this.grid[node.x][node.y] != TileMap.FINISH)
+                this.grid[node.x][node.y] = val;
         });
         //console.log(this.grid);
     }
 
     writeSpecialPoint(x, y, id) {
         this.resetGridById(id);
-        this.resetGridById(-2);
+        //this.resetGridById(TileMap.PATH_LIST);
 
         this.grid[x][y] = id;
     }
