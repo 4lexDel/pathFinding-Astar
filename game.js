@@ -6,6 +6,7 @@ import { getHeight, getWidth } from "/utils.js";
 /**-------------------------------INIT GLOBAL VAR----------------------------------------------------------- */
 
 var canvas = document.getElementById('gameCanvas');
+var ctx = canvas.getContext("2d");
 
 var MOUSE_X = 0;
 var MOUSE_Y = 0;
@@ -13,25 +14,10 @@ var MOUSE_Y = 0;
 var WIDTH;
 var HEIGHT;
 
-var DEFAULT_SIZE = 20;
-
 resizeCanvas();
 
-function resizeCanvas() {
-    WIDTH = 10 * getWidth() / 10;
-    HEIGHT = 10 * getHeight() / 10;
 
-    canvas.width = WIDTH;
-    canvas.height = HEIGHT;
-}
-
-console.log("WIDTH : " + canvas.clientWidth + " - HEIGHT : " + canvas.clientHeight);
-
-
-/**-------------------------------INIT CTX----------------------------------------------------------- */
-
-var ctx = canvas.getContext("2d");
-
+var DEFAULT_SIZE = 20;
 
 
 /**----------------------------------MAP INIT--------------------------------------------------------- */
@@ -61,18 +47,19 @@ var finish = {
 }
 
 var brush = TileMap.OBSTACLE;
+var showAllList = false;
 
-decorationMap.writeSpecialPoint(start.x, start.y, TileMap.START);
-decorationMap.writeSpecialPoint(finish.x, finish.y, TileMap.FINISH);
 
 test();
-draw();
+//draw();
 
 function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, ctx.width, ctx.height);
 
-    map.display(ctx);
-    decorationMap.display(ctx);
+    if (map != undefined && decorationMap != undefined) {
+        map.display(ctx);
+        decorationMap.display(ctx);
+    }
 
     //window.requestAnimationFrame(draw);
 }
@@ -85,9 +72,14 @@ function test() {
     if (result != null) {
         result.pathList.shift();
         //console.log(path);
-        decorationMap.writelist(result.closeList, TileMap.CLOSE_LIST);
-        decorationMap.writelist(result.openList, TileMap.OPEN_LIST);
+        if (showAllList) {
+            decorationMap.writelist(result.closeList, TileMap.CLOSE_LIST);
+            decorationMap.writelist(result.openList, TileMap.OPEN_LIST);
+        }
         decorationMap.writelist(result.pathList, TileMap.PATH_LIST);
+
+        decorationMap.writeSpecialPoint(start.x, start.y, TileMap.START);
+        decorationMap.writeSpecialPoint(finish.x, finish.y, TileMap.FINISH);
     }
     draw();
 }
@@ -127,13 +119,34 @@ function changeBrush() {
             break;
 
         case "ground":
-            brush = TileMap.NORMAL;
+            brush = TileMap.GRASS;
+            break;
+
+        case "road":
+            brush = TileMap.ROAD;
             break;
 
         case "water":
             brush = TileMap.WATER;
             break;
+
+        case "sludge":
+            brush = TileMap.SLUDGE;
+            break;
+
+        case "start":
+            brush = TileMap.START;
+            break;
+
+        case "finish":
+            brush = TileMap.FINISH;
+            break;
     }
+}
+
+function showList(params) {
+    showAllList = document.getElementById("showListInput").checked;
+    test();
 }
 
 
@@ -145,6 +158,7 @@ document.getElementById("resetMap").addEventListener("click", function() {
 });
 
 document.getElementById("getBrush").addEventListener("click", changeBrush);
+document.getElementById("showListButton").addEventListener("click", showList);
 
 
 /**------------------------------------------------------------------- */
@@ -180,8 +194,21 @@ var startDrag = false;
 function mouseInteraction(e) {
     var mouse = getMousePos(canvas, e);
 
-    if (e.which == 1) map.updateGrid(mouse, brush);
-    else map.updateGrid(mouse, TileMap.NORMAL);
+    if (e.which == 1) {
+        if (brush == TileMap.START || brush == TileMap.FINISH) {
+            if (brush == TileMap.START) {
+                start = {
+                    x: parseInt(mouse.x / decorationMap.dx),
+                    y: parseInt(mouse.y / decorationMap.dy)
+                }
+            } else {
+                finish = {
+                    x: parseInt(mouse.x / decorationMap.dx),
+                    y: parseInt(mouse.y / decorationMap.dy)
+                }
+            }
+        } else map.updateGrid(mouse, brush);
+    } else map.updateGrid(mouse, TileMap.GRASS);
     test();
 }
 
@@ -189,7 +216,19 @@ function touchInteraction(e) {
     var touch = getTouchPos(canvas, e);
     console.log(touch);
 
-    map.updateGrid(touch, brush);
+    if (brush == TileMap.START || brush == TileMap.FINISH) {
+        if (brush == TileMap.START) {
+            start = {
+                x: parseInt(touch.x / decorationMap.dx),
+                y: parseInt(touch.y / decorationMap.dy)
+            }
+        } else {
+            finish = {
+                x: parseInt(touch.x / decorationMap.dx),
+                y: parseInt(touch.y / decorationMap.dy)
+            }
+        }
+    } else map.updateGrid(touch, brush);
 
     test();
 }
@@ -304,3 +343,32 @@ document.addEventListener("keydown", function(e) { //KEYBOARD EVENT
 window.onresize = (e) => {
     resizeCanvas();
 };
+
+function resizeCanvas() {
+    console.log("RESIZE !!");
+    WIDTH = 10 * getWidth() / 10;
+    HEIGHT = 10 * getHeight() / 10;
+
+    canvas.width = WIDTH;
+    canvas.height = HEIGHT;
+
+    console.log("WIDTH : " + canvas.clientWidth + " - HEIGHT : " + canvas.clientHeight);
+    console.log("WIDTH : " + canvas.width + " - HEIGHT : " + canvas.height);
+    console.log("WIDTH : " + WIDTH + " - HEIGHT : " + HEIGHT);
+
+
+    if (map != undefined && decorationMap != undefined) {
+        map.resize(WIDTH, HEIGHT);
+        decorationMap.resize(WIDTH, HEIGHT);
+
+        finish = {
+            x: map.nbSquareX - 1,
+            y: map.nbSquareY - 2
+        }
+
+        test();
+    }
+
+
+    //draw();
+}

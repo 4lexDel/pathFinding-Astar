@@ -3,38 +3,55 @@ class TileMap {
     static OPEN_LIST = -3;
     static PATH_LIST = -2;
     static OBSTACLE = -1;
-    static NORMAL = 0;
-    static WATER = 1;
+    static ROAD = 0;
+    static GRASS = 1;
+    static WATER = 2;
+    static SLUDGE = 3;
     static START = 10;
     static FINISH = 20;
     static VOID = 100;
 
-    constructor(nbSquareX, canvasWidth, canvasHeight, defaultFill = 0) {
+    constructor(nbSquareX, canvasWidth, canvasHeight, defaultFill = 1) {
         this.nbSquareX = parseInt(nbSquareX);
 
         this.defaultFill = defaultFill;
 
+        this.canvasWidth;
+        this.canvasHeight;
+
+        this.resize(canvasWidth, canvasHeight);
+    }
+
+    resize(canvasWidth, canvasHeight) {
         this.canvasWidth = canvasWidth;
         this.canvasHeight = canvasHeight;
 
-        this.dx = canvasWidth / nbSquareX;
+        this.dx = canvasWidth / this.nbSquareX;
         this.dy = this.dx;
 
         this.nbSquareY = parseInt(canvasHeight / this.dx) + 1;
+        // console.log("nbSquareY : ", this.nbSquareY);
 
         this.grid = new Array(this.nbSquareX);
         for (var x = 0; x < this.grid.length; x++) {
             this.grid[x] = new Array(this.nbSquareY);
         }
         this.resetGrid();
+        console.log(this.grid[0].length);
     }
 
     display(ctx) {
         for (let x = 0; x < this.grid.length; x++) {
             for (let y = 0; y < this.grid[x].length; y++) {
                 switch (this.grid[x][y]) {
-                    case TileMap.NORMAL:
-                        ctx.fillStyle = "white";
+                    case TileMap.GRASS:
+                        ctx.fillStyle = "#68B052";
+                        ctx.globalAlpha = 1;
+                        ctx.fillRect(x * this.dx, y * this.dy, this.dx, this.dy);
+                        break;
+
+                    case TileMap.ROAD:
+                        ctx.fillStyle = "rgb(100, 100, 100)";
                         ctx.globalAlpha = 1;
                         ctx.fillRect(x * this.dx, y * this.dy, this.dx, this.dy);
                         break;
@@ -45,21 +62,30 @@ class TileMap {
                         ctx.fillRect(x * this.dx, y * this.dy, this.dx, this.dy);
                         break;
 
-                    case TileMap.PATH_LIST:
-                        ctx.fillStyle = "purple"; //"violet";      //PATH
-                        ctx.globalAlpha = 0.6;
+                    case TileMap.SLUDGE:
+                        ctx.fillStyle = "brown";
+                        ctx.globalAlpha = 1;
                         ctx.fillRect(x * this.dx, y * this.dy, this.dx, this.dy);
                         break;
 
+                    case TileMap.PATH_LIST:
+                        ctx.fillStyle = "orange"; //PATH
+                        ctx.globalAlpha = 1;
+                        //ctx.fillRect(x * this.dx + this.dx / 3, y * this.dy + this.dy / 3, this.dx / 3, this.dy / 3);
+                        ctx.beginPath();
+                        ctx.ellipse(this.dx * (x + 0.5), this.dy * (y + 0.5), this.dx / 3, this.dy / 3, 0, 0, 2 * Math.PI);
+                        ctx.fill();
+                        break;
+
                     case TileMap.OPEN_LIST:
-                        ctx.fillStyle = "green"; //"orange";      //OpenList
-                        ctx.globalAlpha = 0.1;
+                        ctx.fillStyle = "green"; //OpenList
+                        ctx.globalAlpha = 0.5;
                         ctx.fillRect(x * this.dx, y * this.dy, this.dx, this.dy);
                         break;
 
                     case TileMap.CLOSE_LIST:
-                        ctx.fillStyle = "red"; //"orange";      //closeList
-                        ctx.globalAlpha = 0.1;
+                        ctx.fillStyle = "red"; //closeList
+                        ctx.globalAlpha = 0.5;
                         ctx.fillRect(x * this.dx, y * this.dy, this.dx, this.dy);
                         break;
 

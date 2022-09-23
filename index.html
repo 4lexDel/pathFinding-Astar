@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+
     <title>A*</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="modal/css/style.css">
@@ -33,7 +35,7 @@
             <div class="settings">
                 <h1>Générer une nouvelle map</h1><br>
                 <label for="sizeGrid">Nombre de cellule (longueur) : </label>
-                <input type="number" name="numberCell" id="numberCell" value="20" min="5" , max="1000"><br>
+                <input type="number" name="numberCell" id="numberCell" value="20" min="5" , max="1000"><br><br>
                 <button id="generateMap" class="modal-close">Générer</button>
                 <br><br>
                 <hr>
@@ -50,9 +52,13 @@
                 <h1>Pinceau</h1>
                 <label for="brush">Pinceau : </label>
                 <select name="typeBrush" id="typeBrush">
-                    <option value="obstacle">Obstacle</option>
-                    <option value="ground">Terre</option>
-                    <option value="water">Eau</option>
+                    <option value="road" style="background-color:rgb(100, 100, 100);color:white;">Route</option>                    
+                    <option value="ground" style="background-color:#68B052;color:black;">Herbe</option>
+                    <option value="water" style="background-color:cyan;color:black;">Eau</option>
+                    <option value="sludge" style="background-color:brown;color:white;">Boue</option>
+                    <option value="obstacle" style="background-color:black;color:white;">Obstacle</option>
+                    <option value="start" style="background-color:blue;color:white;">Départ</option>
+                    <option value="finish" style="background-color:red;color:white;">Arrivée</option>
                 </select>
                 <button id="getBrush" class="modal-close">Valider</button>
                 <br><br>
@@ -67,6 +73,11 @@
         <div class="modal-back"></div>
         <div class="modal-container">
             <h1>Paramètres</h1><br>
+            <input type="checkbox" name="showList" id="showListInput">
+            <label for="showList"> Afficher le chemin de résolution détaillé</label><br><br>
+            <button id="showListButton" class="modal-close">Valider</button>
+            <br><br>
+            <hr>
             <button class="modal-close">Fermer</button>
         </div>
     </div>

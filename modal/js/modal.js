@@ -9,14 +9,13 @@ let buttons = document.querySelectorAll("[modal-id]")
 
 for (let i = 0; i < buttons.length; i++) {
     const button = buttons[i];
-    console.log(button);
-
+    // console.log(button);
 
     let modalId = button.getAttribute("modal-id")
     let modal = document.getElementById(modalId);
 
-    console.log(modalId);
-    console.log(modal);
+    // console.log(modalId);
+    // console.log(modal);
 
     if (modal != null) {
         button.addEventListener("click", function() {
