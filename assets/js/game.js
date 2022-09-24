@@ -3,7 +3,7 @@ import { MazeFusion } from "./lib/MazeFusion/MazeFusion.js";
 import { PathFinding } from "./lib/Pathfinder/PathFinding.js";
 import { TileMap } from "./TileMap.js";
 import { getMousePos, getTouchPos } from "./utils.js";
-import { getHeight, getWidth } from "/utils.js";
+import { getHeight, getWidth } from "./utils.js";
 
 /**-------------------------------INIT GLOBAL VAR----------------------------------------------------------- */
 
@@ -17,7 +17,6 @@ var WIDTH;
 var HEIGHT;
 
 resizeCanvas();
-
 
 var DEFAULT_SIZE = 32;
 
