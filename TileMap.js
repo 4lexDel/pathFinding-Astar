@@ -158,9 +158,17 @@ class TileMap {
         }
     }
 
-    getCoordsWithoutObstacle() {
+    getFinishCoordsWithoutObstacle() {
         for (let x = this.grid.length - 1; x >= 0; x--) {
             for (let y = this.grid[x].length - 1; y >= 0; y--) {
+                if (this.grid[x][y] != TileMap.OBSTACLE) return { x: x, y: y };
+            }
+        }
+    }
+
+    getStartCoordsWithoutObstacle() {
+        for (let x = 0; x < this.grid.length; x++) {
+            for (let y = 0; y < this.grid[x].length; y++) {
                 if (this.grid[x][y] != TileMap.OBSTACLE) return { x: x, y: y };
             }
         }

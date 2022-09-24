@@ -1,4 +1,5 @@
-import { Maze } from "./lib/Maze/Maze.js";
+import { MazeDFS } from "./lib/MazeDFS/MazeDFS.js";
+import { MazeFusion } from "./lib/MazeFusion/MazeFusion.js";
 import { PathFinding } from "./lib/Pathfinder/PathFinding.js";
 import { TileMap } from "./TileMap.js";
 import { getMousePos, getTouchPos } from "./utils.js";
@@ -18,7 +19,7 @@ var HEIGHT;
 resizeCanvas();
 
 
-var DEFAULT_SIZE = 30;
+var DEFAULT_SIZE = 32;
 
 
 /**----------------------------------MAP INIT--------------------------------------------------------- */
@@ -40,12 +41,8 @@ let allMap = generateMaps(DEFAULT_SIZE); //C'est le bazar !!!!!!!!!!!!!!!!!!!!!!
 var map = allMap.editMap;
 var decorationMap = allMap.decorationMap;
 
-var start = {
-    x: 0,
-    y: 0
-}
-
-var finish = map.getCoordsWithoutObstacle();
+var start = map.getStartCoordsWithoutObstacle();
+var finish = map.getFinishCoordsWithoutObstacle();
 
 
 var brush = TileMap.OBSTACLE;
@@ -146,11 +143,12 @@ function changeBrush() {
 function generateMaze() {
     if (map != undefined) {
         //console.log("Génération du labyrinthe");
-        var maze = new Maze(map.nbSquareX, map.nbSquareY); //!!!!!
+        var maze = new MazeFusion(map.nbSquareX, map.nbSquareY); //!!!!!
         maze.generate();
 
         map.grid = maze.getGrid();
-        finish = map.getCoordsWithoutObstacle();
+        start = start = map.getStartCoordsWithoutObstacle();
+        finish = map.getFinishCoordsWithoutObstacle();
 
         test();
     }
@@ -376,7 +374,8 @@ function resizeCanvas() {
         map.resize(WIDTH, HEIGHT);
         decorationMap.resize(WIDTH, HEIGHT);
 
-        finish = map.getCoordsWithoutObstacle();
+        start = map.getStartCoordsWithoutObstacle();
+        finish = map.getFinishCoordsWithoutObstacle();
 
 
         test();
