@@ -29,7 +29,7 @@ class TileMap {
         this.dx = canvasWidth / this.nbSquareX;
         this.dy = this.dx;
 
-        this.nbSquareY = parseInt(canvasHeight / this.dx) + 1;
+        this.nbSquareY = parseInt(canvasHeight / this.dx);
         // console.log("nbSquareY : ", this.nbSquareY);
 
         this.grid = new Array(this.nbSquareX);
@@ -37,7 +37,7 @@ class TileMap {
             this.grid[x] = new Array(this.nbSquareY);
         }
         this.resetGrid();
-        console.log(this.grid[0].length);
+        //console.log(this.grid[0].length);
     }
 
     display(ctx) {
@@ -155,6 +155,14 @@ class TileMap {
             let y = parseInt(coords.y / this.dy);
 
             this.grid[x][y] = id;
+        }
+    }
+
+    getCoordsWithoutObstacle() {
+        for (let x = this.grid.length - 1; x >= 0; x--) {
+            for (let y = this.grid[x].length - 1; y >= 0; y--) {
+                if (this.grid[x][y] != TileMap.OBSTACLE) return { x: x, y: y };
+            }
         }
     }
 }

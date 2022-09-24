@@ -1,4 +1,5 @@
-import { PathFinding } from "./lib/PathFinding.js";
+import { Maze } from "./lib/Maze/Maze.js";
+import { PathFinding } from "./lib/Pathfinder/PathFinding.js";
 import { TileMap } from "./TileMap.js";
 import { getMousePos, getTouchPos } from "./utils.js";
 import { getHeight, getWidth } from "/utils.js";
@@ -17,21 +18,24 @@ var HEIGHT;
 resizeCanvas();
 
 
-var DEFAULT_SIZE = 20;
+var DEFAULT_SIZE = 30;
 
 
 /**----------------------------------MAP INIT--------------------------------------------------------- */
 
 function generateMaps(size) {
+    var editMap = new TileMap(size, WIDTH, HEIGHT);
+    var decorationMap = new TileMap(size, WIDTH, HEIGHT, TileMap.VOID);
+
     return {
-        editMap: new TileMap(size, WIDTH, HEIGHT),
-        decorationMap: new TileMap(size, WIDTH, HEIGHT, TileMap.VOID)
+        editMap: editMap,
+        decorationMap: decorationMap
     }
 }
 
 /**--------------------------------------------------------------------------------------------------- */
 
-let allMap = generateMaps(DEFAULT_SIZE);
+let allMap = generateMaps(DEFAULT_SIZE); //C'est le bazar !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 var map = allMap.editMap;
 var decorationMap = allMap.decorationMap;
@@ -41,10 +45,8 @@ var start = {
     y: 0
 }
 
-var finish = {
-    x: map.nbSquareX - 1,
-    y: map.nbSquareY - 2
-}
+var finish = map.getCoordsWithoutObstacle();
+
 
 var brush = TileMap.OBSTACLE;
 var showAllList = false;
@@ -98,10 +100,7 @@ function generateNewMaps() {
     map = allMap.editMap;
     decorationMap = allMap.decorationMap;
 
-    finish = {
-        x: map.nbSquareX - 1,
-        y: map.nbSquareY - 2
-    }
+    finish = map.getCoordsWithoutObstacle();
 
     decorationMap.writeSpecialPoint(finish.x, finish.y, TileMap.FINISH);
 
@@ -144,6 +143,19 @@ function changeBrush() {
     }
 }
 
+function generateMaze() {
+    if (map != undefined) {
+        //console.log("Génération du labyrinthe");
+        var maze = new Maze(map.nbSquareX, map.nbSquareY); //!!!!!
+        maze.generate();
+
+        map.grid = maze.getGrid();
+        finish = map.getCoordsWithoutObstacle();
+
+        test();
+    }
+}
+
 function showList(params) {
     showAllList = document.getElementById("showListInput").checked;
     test();
@@ -158,7 +170,10 @@ document.getElementById("resetMap").addEventListener("click", function() {
 });
 
 document.getElementById("getBrush").addEventListener("click", changeBrush);
+
 document.getElementById("showListButton").addEventListener("click", showList);
+
+document.getElementById("generateMaze").addEventListener("click", generateMaze);
 
 
 /**------------------------------------------------------------------- */
@@ -361,10 +376,8 @@ function resizeCanvas() {
         map.resize(WIDTH, HEIGHT);
         decorationMap.resize(WIDTH, HEIGHT);
 
-        finish = {
-            x: map.nbSquareX - 1,
-            y: map.nbSquareY - 2
-        }
+        finish = map.getCoordsWithoutObstacle();
+
 
         test();
     }
