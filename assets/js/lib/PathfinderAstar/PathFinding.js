@@ -1,6 +1,6 @@
 import { Node } from "./Node.js";
 
-class PathFinding {
+class PathFindingAstar {
     constructor(startCoords, finishCoords, grid) {
         this.i = 1;
         ///////////////////////
@@ -59,11 +59,11 @@ class PathFinding {
     }
 
     findPath() {
-        //console.log("----------------------------Itération n°" + this.i + "----------------------------");
+        // console.log("----------------------------Itération n°" + this.i + "----------------------------");
         this.i++;
         var currentNode = this.changeCurrentNode(); //Le noeud avec le plus petit cout F passe noeud actuel !
-        //console.log("currentNode : ");
-        //console.log(currentNode);
+        // console.log("currentNode : ");
+        // console.log(currentNode);
 
         if (currentNode == null) {
             //console.log("Pas de solution !");
@@ -89,6 +89,8 @@ class PathFinding {
 
                 currentPath = currentPath.parentNode; //On remonte le chemin avec les liens de parenté
             }
+            // console.log("PATH : ");
+            // console.log(this.pathList);
 
             //displayPath();                      //Histoire d'y voir plus clair
             return 1; //Path found !!
@@ -197,4 +199,4 @@ class PathFinding {
     }
 }
 
-export { PathFinding };
+export { PathFindingAstar };

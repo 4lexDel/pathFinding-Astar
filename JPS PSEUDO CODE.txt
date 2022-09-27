@@ -1,0 +1,40 @@
+-> verifier que le current node n'est pas égale à l'arrivée
+
+-> currentNode => chercher les JUMP POINT dans les 8 directions
+		=> chercher l'arrivée en même temps
+
+-> stocker les JUMP POINT dans l'OPEN-LIST
+
+-> prendre en current node l'element avec le cout le plus faible dans l'open-list (même critère que A*)
+-> retirer cette element de l'open-list (et le mettre dans la close list ??)
+
+
+---------------------------------------------------
+OU CHERCHER ?
+=> point de saut si "Pruning" possible !! (voir https://harablog.wordpress.com/2011/09/07/jump-point-search/ [FIGURE 3]) (FAIRE GAFFE AU DIAGONALE DOUTEUSES !!!!!)
+
+COMMENT CHERCHER ?
+=> Horizontalement/ verticalement en faisant du tout droit et en cherchant le paterne
+=> Diagonalement en faisant du horizontal ET vertical !
+
+! => Si une case à déja été scanné on la re-scanne pas !
+! => On s'arrete dans une direction dés qu'on trouve un JUMP POINT 
+! => On stocke la position du JUMP POINT sa DIRECTION et son COUT
+
+
+
+
+---------------------------------------------------------
+Comparer avec : https://qiao.github.io/PathFinding.js/visual/
+Aides : 
+- https://harablog.wordpress.com/2011/09/07/jump-point-search/
+
+- Excellente ressource : https://zerowidth.com/2013/a-visual-explanation-of-jump-point-search.html
+
+
+
+-----------------------------------------------------------------------------AMELIORATION-----------------------------------------------------------------------------
+
+Certaines directions sont ignorés en fonction de la direction du parent
+Voir en priorité les voisins forcés ???
+Voir si on bouge ou pas au depart d'un noeud !!! 
