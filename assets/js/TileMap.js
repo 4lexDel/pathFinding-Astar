@@ -71,10 +71,10 @@ class TileMap {
                     case TileMap.PATH_LIST:
                         ctx.fillStyle = "orange"; //PATH
                         ctx.globalAlpha = 1;
-                        //ctx.fillRect(x * this.dx + this.dx / 3, y * this.dy + this.dy / 3, this.dx / 3, this.dy / 3);
-                        ctx.beginPath();
-                        ctx.ellipse(this.dx * (x + 0.5), this.dy * (y + 0.5), this.dx / 3, this.dy / 3, 0, 0, 2 * Math.PI);
-                        ctx.fill();
+                        ctx.fillRect(x * this.dx, y * this.dy, this.dx, this.dy);
+                        // ctx.beginPath();
+                        // ctx.ellipse(this.dx * (x + 0.5), this.dy * (y + 0.5), this.dx / 3, this.dy / 3, 0, 0, 2 * Math.PI);
+                        // ctx.fill();
                         break;
 
                     case TileMap.OPEN_LIST:
@@ -113,6 +113,24 @@ class TileMap {
                 ctx.strokeRect(x * this.dx, y * this.dy, this.dx, this.dy);
             }
         }
+    }
+
+    displayList(ctx, listCoord) {
+        ctx.strokeStyle = "pink";
+        ctx.lineWidth = 0.5;
+
+        ctx.beginPath();
+        for (let i = 0; i < listCoord.length; i++) {
+            const element = listCoord[i];
+
+            let x = element.x;
+            let y = element.y;
+
+            if (i == 0) ctx.moveTo(x * this.dx, y * this.dy);
+
+            ctx.lineTo(x * this.dx, y * this.dy);
+        }
+        ctx.stroke();
     }
 
     writelist(list, val) {
